@@ -21,10 +21,24 @@
 // SOFTWARE.
 #include "Adafruit_MQTT.h"
 
-#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) ||             \
-    defined(ARDUINO_SAMD_MKR1010) || defined(ARDUINO_ARCH_SAMD)
-static char *dtostrf(double val, signed char width, unsigned char prec,
-                     char *sout) {
+#ifdef __cplusplus
+  extern "C" {
+#endif
+extern char* itoa(int value, char *string, int radix);
+extern char* ltoa(long value, char *string, int radix);
+extern char* utoa(unsigned value, char *string, int radix);
+extern char* ultoa(unsigned long value, char *string, int radix);
+#ifdef __cplusplus
+  } // extern "C"
+#endif
+
+//#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_ARCH_SAMD)
+#if !( ESP32 || ESP8266 || defined(CORE_TEENSY) || defined(STM32F1) || defined(STM32F2) || defined(STM32F3) || defined(STM32F4) || defined(STM32F7) || \
+     ( defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED) ) || ARDUINO_ARCH_SEEED_SAMD || ( defined(SEEED_WIO_TERMINAL) || defined(SEEED_XIAO_M0) || \
+       defined(SEEED_FEMTO_M0) || defined(Wio_Lite_MG126) || defined(WIO_GPS_BOARD) || defined(SEEEDUINO_ZERO) || defined(SEEEDUINO_LORAWAN) || \
+       defined(WIO_LTE_CAT) || defined(SEEED_GROVE_UI_WIRELESS) ) ) 
+static char *dtostrf(double val, signed char width, unsigned char prec, char *sout)
+{
   char fmt[20];
   sprintf(fmt, "%%%d.%df", width, prec);
   sprintf(sout, fmt, val);
@@ -32,16 +46,22 @@ static char *dtostrf(double val, signed char width, unsigned char prec,
 }
 #endif
 
-#if defined(ESP8266)
-int strncasecmp(const char *str1, const char *str2, int len) {
+#if ( defined(ESP8266) || defined(CONFIG_PLATFORM_8721D) )
+int strncasecmp(const char *str1, const char *str2, int len) 
+{
   int d = 0;
-  while (len--) {
+  
+  while (len--) 
+  {
     int c1 = tolower(*str1++);
     int c2 = tolower(*str2++);
-    if (((d = c1 - c2) != 0) || (c2 == '\0')) {
+    
+    if (((d = c1 - c2) != 0) || (c2 == '\0')) 
+    {
       return d;
     }
   }
+  
   return 0;
 }
 #endif
